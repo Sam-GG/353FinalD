@@ -33,6 +33,7 @@
         <button type='button' value='Send' name='cancelOrder' onclick='cancelOrder()'>
             Cancel
         </button>
+        
     </div>
     <br>
     <script>
@@ -40,13 +41,10 @@
         xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function () {
             if (this.readyState == 4 && this.status == 200) {
-
                 myObj = JSON.parse(xmlhttp.responseText);
-
-
                 var table = "<table border='1' id='menu-table' >"
                 for (x in myObj) {
-                    table += "<tr> <td> " + myObj[x].ProductName + "</td> <td>" + myObj[x].Price + "</td> </tr>";
+                    table += "<tr> <td> " + myObj[x][0] + "</td> <td>" + myObj[x][1] + "</td> </tr>";
                 }
                 table += "</table>"
                 document.getElementById("menu").innerHTML = table;
