@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+
+<html>
+<link href="/static/css/menu_style.css" rel="stylesheet">    
+<style>
+    body{ background-image: url('static/img/coffee_background.png');}
+</style>
+
+<title>Coffee Shop</title>
+
+<nav>
+    <a href="/employeesOnly">
+        <button>Employees Only</button>
+    </a>  
+    <a href="/isOrderReady">
+        <button>Is my Order Ready?</button>
+    </a>  
+</nav>
+
+<body>
+    <H1>Menu</H1>
+
+    <p id="menu"> </p>
+    <div class='cart'>
+        <H3>Cart:</H3>
+        <p id="selected"></p>
+        
+        <br>Customer name: <br>
+        <input type='text' id='customer-name' />
+        <button type='button' value='Send' name='submitOrder' onclick='submitOrder()'>
+            Submit Order
+        </button>
+        <button type='button' value='Send' name='cancelOrder' onclick='cancelOrder()'>
+            Cancel
+        </button>
+    </div>
+    <br>
+    <script>
+        var cartList = [[]];
+        xmlhttp = new XMLHttpRequest();
+        xmlhttp.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+
+                myObj = JSON.parse(xmlhttp.responseText);
+
+
+                var table = "<table border='1' id='menu-table' >"
+                for (x in myObj) {
+                    table += "<tr> <td> " + myObj[x].ProductName + "</td> <td>" + myObj[x].Price + "</td> </tr>";
+                }
+                table += "</table>"
+                document.getElementById("menu").innerHTML = table;
+                
+                
+                onRowClick("menu-table", function (row) {
+                    var product = row.getElementsByTagName("td")[0].innerHTML;
+                    var price = row.getElementsByTagName("td")[1].innerHTML;
+                    var item = [product, price]; 
+                    cartList[cartList.length] = item;
+                    document.getElementById('selected').innerHTML += (product + ', ');
+                });
+
+            }
+        };
+
+        xmlhttp.open("GET", "/menu", true);
+        xmlhttp.setRequestHeader("Content-type", "application/json;charset=UTF-8");
+        xmlhttp.send();
+
+        function cancelOrder(){
+            document.getElementById('selected').innerHTML = null;
+            cartList = [[]];
+        };
+    </script>
+    
+    <script type="text/javascript">
+        function submitOrder(req, res){
+            var order = {
+                cart: cartList,
+                customer: document.getElementById('customer-name').value
+            };
+            xmlhttp = new XMLHttpRequest();
+            xmlhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    console.log('Submitted order. Response: '+ this.responseText);
+                };
+            };
+            xmlhttp.open("POST", "/order", true);
+            xmlhttp.setRequestHeader("Content-type", "application/json;charset=UTF-8");
+            xmlhttp.send(JSON.stringify(order));
+        };
+
+    </script>
+
+    <script type="text/javascript">
+        function onRowClick(tableId, callback) {
+            var table = document.getElementById(tableId),
+                rows = table.getElementsByTagName("tr"),
+                i;
+            for (i = 0; i < rows.length; i++) {
+                table.rows[i].onclick = function (row) {
+                    return function () {
+                        callback(row);
+                    };
+                }(table.rows[i]);
+            }
+        };
+    </script>
+
+</body>
+
+</html>

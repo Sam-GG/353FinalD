@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+
+<html>
+    <link href="/static/css/orderReady_style.css" rel="stylesheet">    
+    <style>
+        body{ background-image: url('static/img/coffee_background.png');}
+    </style>
+    <nav>
+        <a href="/">
+            <button>Back to Menu</button>
+        </a>  
+    </nav>
+
+    <title>Is my Order Ready?</title>
+
+    <body>
+        <br><br>
+        <div class='orders-ready'>
+            Type your name into the box to see if your order is ready.
+            <br><br>
+            <input type='text' id='order-name' />
+            <button type='button' value='Send' name='checkOrderReady' onclick='checkOrderReady(document.getElementById("order-name").value)'>
+                Check if my order is ready
+            </button>
+            <p id='ready'></p>
+        </div>
+
+        <script>
+            function checkOrderReady(orderName){
+                
+                console.log(orderName);
+                order = {
+                    name: orderName
+                }
+                xmlhttp = new XMLHttpRequest();
+                xmlhttp.onreadystatechange = function () {
+                    if (this.readyState == 4 && this.status == 200) {
+                        document.getElementById("ready").innerHTML = this.responseText;
+                    };
+                };
+                xmlhttp.open("POST", "/checkOrderReady", true);
+                xmlhttp.setRequestHeader("Content-type", "application/json;charset=UTF-8");
+                xmlhttp.send(JSON.stringify(order));
+            }
+        </script>
+    </body>
