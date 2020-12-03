@@ -17,7 +17,5 @@ def employeePage():
 def orderReadyPage():
     return render_template('orderReadyPage.html')
 
-    
-
 if __name__ == "__main__":
     app.run(debug=True)
