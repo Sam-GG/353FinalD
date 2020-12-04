@@ -105,9 +105,9 @@ def submitOrder():
         except Exception as e:
             print(e)
             return('Error. Use valid symbols for name')
-        else{
+        else:
             return('Success.')
-        }
+        
 
 
 
