@@ -97,12 +97,17 @@ def submitOrder():
     #Iterate and insert the products from cartList into the table
     print(cartList)
     for item in cartList:
+        print(item)
         sql = "INSERT INTO order_" + customer + " (ProductName, Price) VALUES ('"+item[0]+"', "+item[1]+")"
         try:
             conn[1].execute(sql)
             conn[0].commit()
         except Exception as e:
             print(e)
+            return('Error. Use valid symbols for name')
+        else{
+            return('Success.')
+        }
 
 
 

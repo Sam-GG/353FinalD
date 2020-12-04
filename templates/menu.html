@@ -37,7 +37,8 @@
     </div>
     <br>
     <script>
-        var cartList = [[]];
+        var cartList;
+        console.log(cartList);
         xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function () {
             if (this.readyState == 4 && this.status == 200) {
@@ -53,8 +54,13 @@
                 onRowClick("menu-table", function (row) {
                     var product = row.getElementsByTagName("td")[0].innerHTML;
                     var price = row.getElementsByTagName("td")[1].innerHTML;
-                    var item = [product, price]; 
-                    cartList[cartList.length] = item;
+                    var item = [product, price];                     
+                    if (cartList == null){
+                        cartList = [item]
+                    }else{
+                        cartList[cartList.length] = item;
+                    };
+                    
                     document.getElementById('selected').innerHTML += (product + ', ');
                 });
 
