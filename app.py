@@ -6,7 +6,7 @@ app = Flask(__name__)
 mysql = MySQL()
 app.config['MYSQL_DATABASE_USER'] = 'root'
 app.config['MYSQL_DATABASE_PASSWORD'] = '9043'
-app.config['MYSQL_DATABASE_DB'] = '353Final'
+app.config['MYSQL_DATABASE_DB'] = '353final'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 mysql.init_app(app)
 
@@ -48,15 +48,62 @@ def displayMenu():
 @app.route('/addProduct', methods=['POST'])
 def addProduct():
     #Get params for the new menu item from client
-    """ console.log(req.body.name)
-    console.log(req.body)
-    var product = req.body.name
-    var price = req.body.price
+    product = request.json['name']
+    price = request.json['price']
     #Insert into menu table in database
-    var sql = "INSERT INTO menu (ProductName, Price) VALUES ('" + product + "', " + price + ")"
-    con.query(sql, function (err, result) {
-        if (err) console.log(err);
-        res.send('Success.'); """
+    sql = "INSERT INTO menu (ProductName, Price) VALUES ('" + product + "', " + price + ")"
+    conn = createConnection()
+    try:
+        conn[1].execute(sql)
+        conn[0].commit()
+    except Exception as e:
+        print(e)
+        return('Error occurred.')
+    else:
+        return ('Success.')
+
+#Delete products from menu
+@app.route('/deleteProduct', methods=['POST'])
+def deleteProduct():
+    product = request.json['name']
+    product = str(product)
+    print(product)
+    print(type(product))
+    #query a delete from the menu table
+    sql = "DELETE FROM menu WHERE ProductName = (%s)"
+    conn = createConnection()
+    try:
+        conn[1].execute(sql, (product,))
+        conn[0].commit()
+    except Exception as e:
+        print(e)
+        return('Error occurred. Make sure the name is correct.')
+    else:
+        return('Success.')
+
+#Add orders from a cart to orders table
+@app.route('/order', methods=['POST'])
+def submitOrder():
+    cartList = request.json['cart']
+    customer = request.json['customer']
+    #creates an order table for a single customer, named after their name
+    conn = createConnection()
+    sql = "CREATE TABLE order_" + customer + " (ProductName varchar(128), Price FLOAT)"
+    try:
+        conn[1].execute(sql)
+        conn[0].commit()
+    except Exception as e:
+        print(e)
+    #Iterate and insert the products from cartList into the table
+    print(cartList)
+    for item in cartList:
+        sql = "INSERT INTO order_" + customer + " (ProductName, Price) VALUES ('"+item[0]+"', "+item[1]+")"
+        try:
+            conn[1].execute(sql)
+            conn[0].commit()
+        except Exception as e:
+            print(e)
+
 
 
 
