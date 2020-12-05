@@ -87,7 +87,7 @@
 
                     var table = "<table border='1' id='menu-table' >"
                     for (x in myObj) {
-                        table += "<tr> <td> " + myObj[x].ProductName + "</td> <td>" + myObj[x].Price + "</td> </tr>";
+                        table += "<tr> <td> " + myObj[x][0] + "</td> <td>" + myObj[x][1] + "</td> </tr>";
                     }
                     table += "</table>"
                     document.getElementById("display-order").innerHTML = table;

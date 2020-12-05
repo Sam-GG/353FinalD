@@ -85,6 +85,7 @@ def deleteProduct():
 @app.route('/order', methods=['POST'])
 def submitOrder():
     cartList = request.json['cart']
+    print(cartList)
     customer = request.json['customer']
     #creates an order table for a single customer, named after their name
     conn = createConnection()
@@ -105,12 +106,79 @@ def submitOrder():
         except Exception as e:
             print(e)
             return('Error. Use valid symbols for name')
-        else:
-            return('Success.')
+    return('Success.')
         
+#Display active orders
+@app.route('/activeOrders', methods=['GET'])
+def getActiveOrders():
+    #SQL commands to display all the customer order tables to the client page in order FIFO
+    #Select all tables that have the 'order_' prefix and return their names
+    sql = """SELECT TABLE_NAME
+    FROM information_schema.tables
+    WHERE table_name like '%order%'
+    ORDER BY CREATE_TIME DESC"""
+    conn = createConnection()
+    try:
+        conn[1].execute(sql)
+        orders = conn[1].fetchall()
+    except Exception as e:
+        print(e)
+        return('Error retrieving orders.')
+    formatted_orders = []
+    for order in orders:
+        formatted_orders.append(order[0].split('_')[1])
+    print(formatted_orders)
+    return jsonify(formatted_orders)
 
+#Return Order information of a given customer to the employee page
+@app.route('/displayOrder', methods = ['POST'])
+def displayOrder():
+    name = request.json['name'].strip()
+    sql = 'SELECT * FROM order_'+name
+    conn = createConnection()
+    try:
+        conn[1].execute(sql)
+        order = conn[1].fetchall()
+        print(order)
+    except Exception as e:
+        print(e)
+        return('Error displaying order')
+    return(jsonify(order))
 
+#Complete's an order. 
+#Drops the customers order table and adds them to the table of completed orders
+@app.route('/completeOrder', methods = ['POST'])
+def completeOrder():
+    customerName = request.json['name'].strip()
+    tableName = 'order_' + customerName
+    sql = 'DROP TABLE '+tableName
+    conn = createConnection()
+    try:
+        conn[1].execute(sql)
+        conn[0].commit()
+        sql_2 = 'INSERT INTO completed (name) VALUES (%s)'
+        conn[1].execute(sql_2, customerName)
+        conn[0].commit()
+    except Exception as e:
+        print(e)
+        return('Error completing order.')
+    return('Success.')
 
+#Checks to see if customer's name is in the table of completed orders
+@app.route('/checkOrderReady', methods = ['POST'])
+def checkOrderReady():
+    name = request.json['name']
+    sql = 'SELECT * FROM completed'
+    conn = createConnection()
+    try:
+        conn[1].execute(sql)
+        completed = conn[1].fetchall()
+    except Exception as e:
+        print(e)
+    if (name,) in completed:
+        return('Order completed!')
+    else:
+        return('Order not ready.')
 
 if __name__ == "__main__":
     app.run(debug=True)
